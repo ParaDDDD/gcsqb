@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高度専門職1号ロ｜积分自动计算表</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F2EFE8;
+    --border: #E0DDD5;
+    --text: #1A1916;
+    --text2: #6B6860;
+    --text3: #9E9C97;
+    --blue: #1A4FAD;
+    --blue-bg: #EBF0FB;
+    --green: #0A6B45;
+    --green-bg: #E4F4ED;
+    --amber: #8A5200;
+    --amber-bg: #FFF3DC;
+    --red: #B02B2B;
+    --red-bg: #FDEAEA;
+    --accent: #1A4FAD;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 32px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 20px;
+  }
+  .header-tag {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 6px;
+  }
+
+  /* Score bar */
+  .score-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .score-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1;
+    min-width: 72px;
+    color: var(--text);
+  }
+  .score-right { flex: 1; }
+  .bar-wrap {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease, background 0.3s;
+  }
+  .bar-marks {
+    display: flex;
+    justify-content: space-between;
+  }
+  .bar-marks span { font-size: 10px; color: var(--text3); }
+  .verdict {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-top: 8px;
+    letter-spacing: 0.02em;
+  }
+  .verdict.ok { background: var(--green-bg); color: var(--green); }
+  .verdict.warn { background: var(--amber-bg); color: var(--amber); }
+  .verdict.bad { background: var(--red-bg); color: var(--red); }
+
+  /* Section */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .sec-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .sec-num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    min-width: 20px;
+  }
+  .sec-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .sec-pts {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue);
+  }
+
+  /* Options */
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 18px;
+    border-top: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .option:first-of-type { border-top: none; }
+  .option:hover { background: #FAFAF8; }
+  .option.selected { background: var(--blue-bg); }
+
+  .chk {
+    width: 17px;
+    height: 17px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    background: var(--surface);
+    transition: all 0.12s;
+  }
+  .chk.on { background: var(--blue); border-color: var(--blue); }
+  .chk.on::after { content: '✓'; color: #fff; font-size: 10px; font-weight: 700; }
+
+  .opt-body { flex: 1; }
+  .opt-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .opt-note { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .opt-pts {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    min-width: 38px;
+    text-align: right;
+    margin-top: 1px;
+  }
+
+  /* Dropdowns */
+  .drop-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 14px 18px;
+  }
+  .drop-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; letter-spacing: 0.04em; }
+  select {
+    width: 100%;
+    padding: 8px 30px 8px 10px;
+    font-size: 13px;
+    font-family: 'Noto Sans SC', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    cursor: pointer;
+  }
+  select:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+  .income-note {
+    padding: 0 18px 12px;
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .income-note.warn { color: var(--red); font-weight: 500; }
+
+  /* Research cap note */
+  .cap-note {
+    padding: 6px 18px 12px;
+    font-size: 11px;
+    color: var(--text3);
+    border-top: 1px solid var(--border);
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  @media print {
+    .score-sticky { position: static; box-shadow: none; }
+    body { background: white; }
+    .page { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-tag">在留资格・高度専門職第１号ロ　令和5年4月1日以降</div>
+    <h1>高度人才积分自动计算表</h1>
+    <div class="header-sub">点击各项目进行勾选，合计分数将自动更新 &nbsp;｜&nbsp; 70分以上可申请高度専門職，80分以上可1年后申请永驻</div>
+  </div>
+
+  <!-- Score bar -->
+  <div class="score-sticky">
+    <div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">当前积分</div>
+      <div class="score-number" id="score-big">0</div>
+    </div>
+    <div class="score-right">
+      <div class="bar-wrap">
+        <div class="bar-fill" id="bar" style="width:0%;background:var(--blue)"></div>
+      </div>
+      <div class="bar-marks">
+        <span>0</span><span>70分（3年永驻）</span><span>80分（1年永驻）</span><span>100+</span>
+      </div>
+      <div class="verdict bad" id="verdict">未达标</div>
+    </div>
+  </div>
+
+  <!-- 1. 学历 -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-num">①</span>
+      <span class="sec-label">学历</span>
+      <span class="sec-pts" id="pts-edu">0 分</span>
+    </div>
+    <div id="grp-edu">
+      <div class="option" data-grp="edu" data-val="30" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">博士学位（非专业学位）</div></div><div class="opt-pts">30分</div>
+      </div>
+      <div class="option" data-grp="edu" data-val="25" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">经营管理专业学位（MBA・MOT）</div></div><div class="opt-pts">25分</div>
+      </div>
+      <div class="option" data-grp="edu" data-val="20" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">修士或专业学位</div></div><div class="opt-pts">20分</div>
+      </div>
+      <div class="option" data-grp="edu" data-val="10" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">本科或同等以上学历（非博士・修士）</div></div><div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-grp="edu" data-val="5" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body">
+          <div class="opt-text">两个以上不同专业的博士・修士或专业学位</div>
+          <div class="opt-note">※ 与上方最终学历累加</div>
+        </div><div class="opt-pts">+5分</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 职历 -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-num">②</span>
+      <span class="sec-label">职历（从事相关业务的实务经验）</span>
+      <span class="sec-pts" id="pts-exp">0 分</span>
+    </div>
+    <div id="grp-exp">
+      <div class="option" data-grp="exp" data-val="20" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">10年以上</div></div><div class="opt-pts">20分</div>
+      </div>
+      <div class="option" data-grp="exp" data-val="15" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">7年以上 10年未满</div></div><div class="opt-pts">15分</div>
+      </div>
+      <div class="option" data-grp="exp" data-val="10" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">5年以上 7年未满</div></div><div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-grp="exp" data-val="5" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">3年以上 5年未满</div></div><div class="opt-pts">5分</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 年收 -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-num">③</span>
+      <span class="sec-label">年收（年龄×年收矩阵）</span>
+      <span class="sec-pts" id="pts-income">0 分</span>
+    </div>
+    <div class="drop-row">
+      <div>
+        <div class="drop-label">申请时年龄</div>
+        <select id="sel-age" onchange="calcIncome()">
+          <option value="u30">30岁未满</option>
+          <option value="30-34">30～34岁</option>
+          <option value="35-39">35～39岁</option>
+          <option value="40+">40岁以上</option>
+        </select>
+      </div>
+      <div>
+        <div class="drop-label">预计年收</div>
+        <select id="sel-sal" onchange="calcIncome()">
+          <option value="1000+">1,000万円以上</option>
+          <option value="900">900～1,000万円</option>
+          <option value="800">800～900万円</option>
+          <option value="700">700～800万円</option>
+          <option value="600">600～700万円</option>
+          <option value="500">500～600万円</option>
+          <option value="400">400～500万円</option>
+          <option value="300">300万円未満</option>
+        </select>
+      </div>
+    </div>
+    <div class="income-note" id="income-note">※ 年收300万円未满时，即使总分≥70分也不予认定</div>
+  </div>
+
+  <!-- 4. 年龄加分 -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-num">④</span>
+      <span class="sec-label">年龄加分</span>
+      <span class="sec-pts" id="pts-age">0 分</span>
+    </div>
+    <div id="grp-age">
+      <div class="option" data-grp="age" data-val="15" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">30岁未满</div></div><div class="opt-pts">15分</div>
+      </div>
+      <div class="option" data-grp="age" data-val="10" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">30～34岁</div></div><div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-grp="age" data-val="5" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">35～39岁</div></div><div class="opt-pts">5分</div>
+      </div>
+      <div class="option" data-grp="age" data-val="0" onclick="selectRadio(this)">
+        <div class="chk"></div><div class="opt-body"><div class="opt-text">40岁以上</div></div><div class="opt-pts">0分</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 资格 -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-num">⑤</span>
+      <span class="sec-label">资格（日本国家资格 / IT告示资格）</span>
+      <span class="sec-pts" id="pts-qual">0 分</span>
+    </div>
+    <div id="grp-qual">
+      <div class="option" data-grp="qual" data-val="10" onclick="selectRadio(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">持有2个以上相关日本国家资格 / IT告示试验合格或资格</div>
+          <div class="opt-note">例：IPA高度情报处理技術者、各种业务独占资格等</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-grp="qual" data-val="5" onclick="selectRadio(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">持有1个相关日本国家资格 / IT告示试验合格或资格</div>
+          <div class="opt-note">例：IPA应用信息技術者、基本信息技術者等</div>
+        </div>
+        <div class="opt-pts">5分</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 研究实绩 -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-num">⑥</span>
+      <span class="sec-label">研究实绩</span>
+      <span class="sec-pts" id="pts-res">0 分</span>
+    </div>
+    <div id="grp-res">
+      <div class="option" data-grp="res" data-val="15" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body"><div class="opt-text">作为发明人持有1件以上专利</div><div class="opt-note">④ 需提交特许证写本</div></div>
+        <div class="opt-pts">15分</div>
+      </div>
+      <div class="option" data-grp="res" data-val="15" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body"><div class="opt-text">曾3次以上参与外国政府补助金・竞争性经费等支持的研究</div><div class="opt-note">⑤</div></div>
+        <div class="opt-pts">15分</div>
+      </div>
+      <div class="option" data-grp="res" data-val="15" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body"><div class="opt-text">在学术论文数据库登载期刊发表3篇以上论文（责任作者或第一作者）</div><div class="opt-note">⑥</div></div>
+        <div class="opt-pts">15分</div>
+      </div>
+      <div class="option" data-grp="res" data-val="15" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body"><div class="opt-text">其他法务大臣认定的研究实绩</div><div class="opt-note">⑦</div></div>
+        <div class="opt-pts">15分</div>
+      </div>
+    </div>
+    <div class="cap-note">※ 满足2项以上时，合计上限为15分</div>
+  </div>
+
+  <!-- 7. 特别加算 -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-num">⑦</span>
+      <span class="sec-label">特别加算</span>
+      <span class="sec-pts" id="pts-bonus">0 分</span>
+    </div>
+    <div id="grp-bonus">
+      <div class="option" data-val="10" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">合同机关已获得创新促进支援措置（イノベーション促進支援措置）认定</div>
+          <div class="opt-note">⑨ — J-Startup、经产省补助金等对象企业</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-val="10" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">合同机关为中小企业，且符合上述⑨创新认定</div>
+          <div class="opt-note">⑩</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-val="10" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">地方公共团体对高度人才外国人接收的支援认定（法务大臣认定）</div>
+          <div class="opt-note">⑪</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-val="5" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">合同机关为中小企业且试验研究费占销售额3%以上</div>
+          <div class="opt-note">⑫</div>
+        </div>
+        <div class="opt-pts">5分</div>
+      </div>
+      <div class="option" data-val="5" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">持有法务大臣认定的外国资格・表彰等</div>
+          <div class="opt-note">⑬</div>
+        </div>
+        <div class="opt-pts">5分</div>
+      </div>
+      <div class="option" data-val="10" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">毕业于日本大学或完成大学院课程</div>
+          <div class="opt-note">⑭</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-val="15" data-mutex="jpn" onclick="selectMutex(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">日语能力：N1合格 / 外国大学日语专业毕业</div>
+          <div class="opt-note">⑮-Ⅰ</div>
+        </div>
+        <div class="opt-pts">15分</div>
+      </div>
+      <div class="option" data-val="10" data-mutex="jpn" onclick="selectMutex(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">日语能力：N2合格（不含已选⑭或N1者）</div>
+          <div class="opt-note">⑮-Ⅱ</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-val="10" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">参与各省厅涉及成长领域的尖端项目</div>
+          <div class="opt-note">⑯</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-val="10" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">毕业于世界排名前300外国大学 / 日本指定大学（QS・THE・上海交大排名2项以上）</div>
+          <div class="opt-note">⑰-Ⅰ</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+      <div class="option" data-val="5" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">毕业于文科省超全球大学（SGU）/ 外务省创新亚洲合作校</div>
+          <div class="opt-note">⑰-Ⅱ・Ⅲ</div>
+        </div>
+        <div class="opt-pts">5分</div>
+      </div>
+      <div class="option" data-val="5" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">修了JICA研修（创新亚洲事业・1年以上）</div>
+          <div class="opt-note">⑱</div>
+        </div>
+        <div class="opt-pts">5分</div>
+      </div>
+      <div class="option" data-val="10" onclick="toggleCheck(this)">
+        <div class="chk"></div>
+        <div class="opt-body">
+          <div class="opt-text">从事投资运用业等相关业务</div>
+          <div class="opt-note">㉑</div>
+        </div>
+        <div class="opt-pts">10分</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>依据：出入国管理及难民认定法　令和5年4月1日以降<br>高度専門職第１号ロ ポイント計算表（参考书式B）</div>
+    <div style="text-align:right;">合计 <span id="footer-score" style="font-size:20px;font-weight:600;color:var(--blue);">0</span> 分</div>
+  </div>
+
+</div>
+
+<script>
+  const S = { edu:0, exp:0, income:0, age:0, qual:0, _res:0, _bonus:0, _jpn:0 };
+
+  function selectRadio(el) {
+    const grp = el.dataset.grp;
+    const container = document.getElementById('grp-' + grp);
+    container.querySelectorAll('.option').forEach(o => {
+      o.classList.remove('selected');
+      o.querySelector('.chk').classList.remove('on');
+    });
+    const wasOn = false;
+    el.classList.add('selected');
+    el.querySelector('.chk').classList.add('on');
+    S[grp] = parseInt(el.dataset.val);
+    update();
+  }
+
+  function toggleCheck(el) {
+    const cb = el.querySelector('.chk');
+    const on = cb.classList.toggle('on');
+    el.classList.toggle('selected', on);
+    update();
+  }
+
+  function selectMutex(el) {
+    const mutex = el.dataset.mutex;
+    document.querySelectorAll('[data-mutex="' + mutex + '"]').forEach(o => {
+      o.classList.remove('selected');
+      o.querySelector('.chk').classList.remove('on');
+    });
+    el.classList.add('selected');
+    el.querySelector('.chk').classList.add('on');
+    update();
+  }
+
+  function calcIncome() {
+    const age = document.getElementById('sel-age').value;
+    const sal = document.getElementById('sel-sal').value;
+    const note = document.getElementById('income-note');
+    const m = {
+      'u30':  {'1000+':40,'900':35,'800':30,'700':25,'600':20,'500':15,'400':10,'300':0},
+      '30-34':{'1000+':40,'900':35,'800':30,'700':25,'600':20,'500':15,'400':0,'300':0},
+      '35-39':{'1000+':40,'900':35,'800':30,'700':25,'600':20,'500':0,'400':0,'300':0},
+      '40+':  {'1000+':40,'900':35,'800':30,'700':25,'600':0,'500':0,'400':0,'300':0}
+    };
+    const pts = (m[age] && m[age][sal] !== undefined) ? m[age][sal] : 0;
+    S.income = pts;
+    if (sal === '300') {
+      note.textContent = '⚠ 年收300万円未满，即使总分≥70分也不予认定高度専門職';
+      note.className = 'income-note warn';
+    } else {
+      note.textContent = '※ 年收300万円未满时，即使总分≥70分也不予认定';
+      note.className = 'income-note';
+    }
+    document.getElementById('pts-income').textContent = pts + ' 分';
+    update();
+  }
+
+  function update() {
+    document.getElementById('pts-edu').textContent = S.edu + ' 分';
+    document.getElementById('pts-exp').textContent = S.exp + ' 分';
+    document.getElementById('pts-age').textContent = S.age + ' 分';
+    document.getElementById('pts-qual').textContent = S.qual + ' 分';
+
+    // research cap
+    let resCount = 0, resPts = 0;
+    document.querySelectorAll('#grp-res .option').forEach(el => {
+      if (el.querySelector('.chk').classList.contains('on')) { resCount++; resPts += parseInt(el.dataset.val); }
+    });
+    S._res = resCount >= 2 ? 15 : resPts;
+    document.getElementById('pts-res').textContent = S._res + ' 分';
+
+    // bonus
+    let bonusPts = 0;
+    document.querySelectorAll('#grp-bonus .option').forEach(el => {
+      if (el.querySelector('.chk').classList.contains('on')) bonusPts += parseInt(el.dataset.val);
+    });
+    S._bonus = bonusPts;
+    document.getElementById('pts-bonus').textContent = bonusPts + ' 分';
+
+    const total = S.edu + S.exp + S.income + S.age + S.qual + S._res + S._bonus;
+    document.getElementById('score-big').textContent = total;
+    document.getElementById('footer-score').textContent = total;
+
+    const pct = Math.min(total / 100 * 100, 100);
+    const bar = document.getElementById('bar');
+    bar.style.width = pct + '%';
+    bar.style.background = total >= 80 ? '#0A6B45' : total >= 70 ? '#8A5200' : '#1A4FAD';
+
+    const v = document.getElementById('verdict');
+    if (total >= 80) { v.className = 'verdict ok'; v.textContent = '✓ 80分达标 — 可于高度専門職取得1年后申请永驻'; }
+    else if (total >= 70) { v.className = 'verdict warn'; v.textContent = '△ 70分达标 — 可于高度専門職取得3年后申请永驻'; }
+    else { v.className = 'verdict bad'; v.textContent = '✕ 未达70分 — 暂不符合高度専門職申请条件'; }
+  }
+
+  calcIncome();
+  update();
+</script>
+</body>
+</html>
