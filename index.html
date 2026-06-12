@@ -305,7 +305,7 @@
       <div class="option" data-grp="edu" data-val="10" onclick="selectRadio(this)">
         <div class="chk"></div><div class="opt-body"><div class="opt-text">本科或同等以上学历（非博士・修士）</div></div><div class="opt-pts">10分</div>
       </div>
-      <div class="option" data-grp="edu" data-val="5" onclick="selectRadio(this)">
+      <div class="option" data-val="5" onclick="toggleCheck(this)">
         <div class="chk"></div><div class="opt-body">
           <div class="opt-text">两个以上不同专业的博士・修士或专业学位</div>
           <div class="opt-note">※ 与上方最终学历累加</div>
@@ -632,8 +632,26 @@
     document.getElementById('pts-income').textContent = pts + ' 分';
     update();
   }
-
   function update() {
+    let eduExtra = 0;
+const eduExtraEl = document.querySelector('#grp-edu .option[data-val="5"]');
+
+if (
+    eduExtraEl &&
+    eduExtraEl.querySelector('.chk').classList.contains('on')
+) {
+    eduExtra = 5;
+}
+
+S.edu = Math.max(
+    ...Array.from(
+        document.querySelectorAll('#grp-edu .option[data-grp="edu"]')
+    ).map(el =>
+        el.querySelector('.chk').classList.contains('on')
+            ? parseInt(el.dataset.val)
+            : 0
+    )
+) + eduExtra;
     document.getElementById('pts-edu').textContent = S.edu + ' 分';
     document.getElementById('pts-exp').textContent = S.exp + ' 分';
     document.getElementById('pts-age').textContent = S.age + ' 分';
