@@ -239,7 +239,173 @@
     color: var(--text3);
     border-top: 1px solid var(--border);
   }
+/* =========================
+   咨询宣传区域
+   ========================= */
 
+/* 顶部简洁宣传 */
+.promo-top {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.promo-top-content {
+  flex: 1;
+}
+
+.promo-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+  background: var(--blue-bg);
+  border-radius: 20px;
+  padding: 3px 9px;
+  margin-bottom: 7px;
+}
+
+.promo-top-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.promo-top-text {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.promo-top-qr {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+
+/* 底部详细宣传 */
+.promo-bottom {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-top: 24px;
+  padding: 26px;
+
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.promo-bottom-content {
+  flex: 1;
+}
+
+.promo-bottom-label {
+  font-size: 11px;
+  color: var(--blue);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.promo-bottom-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.promo-bottom-text {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+
+.promo-bottom-services {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.promo-service {
+  font-size: 11px;
+  color: var(--text2);
+  background: var(--surface2);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+.promo-bottom-contact {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.promo-bottom-qr {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.promo-scan-text {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 7px;
+}
+
+
+/* 手机适配 */
+@media (max-width: 560px) {
+
+  .promo-top {
+    padding: 13px 14px;
+    gap: 12px;
+  }
+
+  .promo-top-qr {
+    width: 72px;
+    height: 72px;
+  }
+
+  .promo-top-title {
+    font-size: 13px;
+  }
+
+  .promo-top-text {
+    font-size: 11px;
+  }
+
+  .promo-bottom {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 20px;
+    gap: 20px;
+  }
+
+  .promo-bottom-services {
+    justify-content: center;
+  }
+
+  .promo-bottom-qr {
+    width: 150px;
+    height: 150px;
+  }
+}
+  
   /* Footer */
   .footer {
     margin-top: 40px;
@@ -269,6 +435,34 @@
   </div>
 
   <!-- Score bar -->
+<!-- 顶部：简洁咨询宣传 -->
+<div class="promo-top">
+
+  <div class="promo-top-content">
+
+    <div class="promo-tag">
+      VISA SUPPORT
+    </div>
+
+    <div class="promo-top-title">
+      日本签证・在留资格相关咨询
+    </div>
+
+    <div class="promo-top-text">
+      高度人才、工作签证、永住等相关问题，
+      欢迎扫描二维码联系我们。
+    </div>
+
+  </div>
+
+  <img
+    src="images/contact-qr.png"
+    alt="签证咨询二维码"
+    class="promo-top-qr"
+  >
+
+</div>
+  
   <div class="score-sticky">
     <div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">当前积分</div>
@@ -572,8 +766,66 @@
   </div>
 
   <div class="footer">
-    <div>依据：出入国管理及难民认定法　令和5年4月1日以降<br>高度専門職第１号ロ ポイント計算表（参考书式B）</div>
-    <div style="text-align:right;">合计 <span id="footer-score" style="font-size:20px;font-weight:600;color:var(--blue);">0</span> 分</div>
+    <!-- 底部：详细咨询宣传 -->
+<div class="promo-bottom">
+
+  <div class="promo-bottom-content">
+
+    <div class="promo-bottom-label">
+      VISA & RESIDENCE SUPPORT
+    </div>
+
+    <div class="promo-bottom-title">
+      算完积分，还有这些问题？
+    </div>
+
+    <div class="promo-bottom-text">
+      高度人才积分只是判断申请条件的一部分。<br>
+      如果您对加分项目、证明材料、工作签证、高度人才或永住申请等问题仍有疑问，
+      欢迎扫描二维码联系我们咨询。
+    </div>
+
+    <div class="promo-bottom-services">
+      <span class="promo-service">高度人才</span>
+      <span class="promo-service">工作签证</span>
+      <span class="promo-service">签证更新</span>
+      <span class="promo-service">永住申请</span>
+      <span class="promo-service">在留资格咨询</span>
+    </div>
+
+  </div>
+
+
+  <div class="promo-bottom-contact">
+
+    <img
+      src="images/contact-qr.png"
+      alt="签证咨询二维码"
+      class="promo-bottom-qr"
+    >
+
+    <div class="promo-scan-text">
+      扫描二维码联系我们
+    </div>
+
+  </div>
+
+</div>
+    <div>
+    依据：出入国管理及难民认定法　令和5年4月1日以降<br>
+    高度専門職第１号ロ ポイント計算表（参考书式B）<br><br>
+
+    ※ 本工具仅供积分试算及参考使用，
+    实际积分认定及申请结果以主管机关审查为准。
+  </div>
+
+  <div style="text-align:right;">
+    合计
+    <span
+      id="footer-score"
+      style="font-size:20px;font-weight:600;color:var(--blue);"
+    >0</span>
+    分
   </div>
 
 </div>
